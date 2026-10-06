@@ -1,6 +1,12 @@
+import os
+from pathlib import Path
+
 import streamlit as st
+from dotenv import load_dotenv
 from groq import Groq
 
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 # Configure the page before rendering any Streamlit elements.
 st.set_page_config(
@@ -217,11 +223,13 @@ if prompt:
     assistant_reply = ""
     with st.chat_message("assistant"):
         with st.spinner("Thinking up something delicious…"):
-            api_key = str(st.secrets.get("GROQ_API_KEY", "")).strip()
+            api_key = os.getenv("GROQ_API_KEY", "").strip()
+            if not api_key:
+                api_key = str(st.secrets.get("GROQ_API_KEY", "")).strip()
             if not api_key or api_key.lower() == "your_groq_api_key_here":
                 assistant_reply = (
-                    "Add your Groq key to `.streamlit/secrets.toml` to start chatting. "
-                    "The key stays in that local secrets file, not in this Python source."
+                    "Add your Groq key as `GROQ_API_KEY=...` in "
+                    "`streamlit_chatbot/.env` or in `.streamlit/secrets.toml`."
                 )
             else:
                 try:
